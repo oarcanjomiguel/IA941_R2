@@ -1,3 +1,5 @@
+//fonte de dados: http://faculty.dca.fee.unicamp.br/gudwin/courses/ia006/apresentacao
+
 Arquivo main.java
 
 Bibliotecas utilizadas:
@@ -21,4 +23,6 @@ Pega a resposta do soar
 
 Acesso ao WorldServer3D:
 
-O acesso é feito através 
+O acesso é feito através WS3DProxy
+O input no Soar de sensoriamento é feito através do comando stringOutputLink()
+O output de atuadores no Soar é feito através do comando processOutputLink()
