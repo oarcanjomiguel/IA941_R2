@@ -1,0 +1,24 @@
+Arquivo main.java
+
+Bibliotecas utilizadas:
+- support.MindView: debugger do soar em java
+- support.NativeUtils: carrega uma biblioteca de dentro de um arquivo .jar
+- SoarBridge.SoarBridge: faz a ponte entre os parâmetros do robô, como 
+    "velocidade esquerda", "posição X", e comandos como "move", "eat" em 
+    ambiente java
+- java.util.logging.Level: 
+- java.util.logging.Logger:
+- org.slf4j.LoggerFactory:
+
+Sequencia de ações do main:
+
+Carrega a biblioteca de dentro do soar-rules.soar
+Abre uma instâncioa do soarBridge
+Abre uma instância do MindView (ambiente gráfico para debug do soar)
+Aguarda tudo abrir
+Dá um passo na sequência do Soar
+Pega a resposta do soar
+
+Acesso ao WorldServer3D:
+
+O acesso é feito através 
