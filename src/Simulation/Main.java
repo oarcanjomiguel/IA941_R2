@@ -33,7 +33,9 @@ public class Main
             String soarRulesPath = "soar-rules.soar";
 
             //Start enviroment data
-            Environment e = new Environment(Boolean.FALSE);
+            //caso parametro de Environment seja TRUE, inicia mundo com paredes
+            //Environment e = new Environment(Boolean.FALSE);
+            Environment e = new Environment(Boolean.TRUE);
             SoarBridge soarBridge = new SoarBridge(e,soarRulesPath,true);
             MindView mv = new MindView(soarBridge);
             mv.setVisible(true);

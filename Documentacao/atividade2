@@ -26,3 +26,4 @@ Acesso ao WorldServer3D:
 O acesso é feito através WS3DProxy
 O input no Soar de sensoriamento é feito através do comando stringOutputLink()
 O output de atuadores no Soar é feito através do comando processOutputLink()
+

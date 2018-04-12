@@ -32,6 +32,7 @@ public class Environment
         w.reset();
         c = proxy.createCreature(100,100,0,1);
         c.start();
+        c.genLeaflet();
         w.grow(1);
 
         if (prepareEnviromentAndStartGame)
