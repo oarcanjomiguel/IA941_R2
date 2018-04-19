@@ -1,8 +1,9 @@
-# RA 210433
 ################################  CONFIGURATION ################################
 watch 5
 learn --off
 epmem --set learning off 
+#smem --off
+#log --level error
 
 ###################################  WANDER  ###################################
 # This operator will make the agent to walk ahead at the enviroment
@@ -30,7 +31,8 @@ sp {apply*wander
    (<ol> ^MOVE <command>)
    (<command> ^Vel 0)
    (<command> ^VelR 2)
-   (<command> ^VelL 0)}
+   (<command> ^VelL 0)
+}
     
 # If the wander operator is selected,
 # and there is a completed move command on the output link,
@@ -38,10 +40,10 @@ sp {apply*wander
 sp {apply*wander*remove*move
 (state <s> ^operator.name wander
            ^io.output-link <out>)
-(<out> ^{<cmd> << EAT GET MOVE DELIVER >>} <move>)
+(<out> ^MOVE <move>)
 (<move> ^status complete)
 -->
-(<out> ^<cmd> <move> -)}   
+(<out> ^MOVE <move> -)}   
 
 ################ SEE ENTITY WITH MEMORY COUNT #####################
 # This operator will make the agent hold some entities in memory if the agent already has some entities in memory
@@ -57,9 +59,8 @@ sp {propose*see*entity*with*memory*count
    (<entity> ^Y <y>) 
    (<entity> ^NAME <name>)
    (<creature> ^MEMORY <memory>)   
-  -(<memory> ^ENTITY.NAME <name>)
-#   (<memory> ^COUNT <quantity> < 7)
-   (<memory> ^COUNT <quantity>)
+   -(<memory> ^ENTITY.NAME <name>)
+   (<memory> ^COUNT <quantity> < 7)
 -->
    (<s> ^operator <o> +)
    (<o> ^name seeEntityWithMemoryCount)
@@ -68,9 +69,7 @@ sp {propose*see*entity*with*memory*count
    (<newEntity> ^Type <type>)
    (<newEntity> ^X <x>)
    (<newEntity> ^Y <y>)
-   (<newEntity> ^Color <color>)
-   (write (crlf) | Proposing to store entity | <name> | | <color> |. Counter: | <quantity>)
-}
+   (<newEntity> ^Color <color>)}
    
 # Apply*see*entity*with*memory*count:
 # If the see operator is selected, then generate an output command to it 
@@ -97,10 +96,8 @@ sp {apply*see*entity*with*memory*count
    (<memoryEntity> ^TYPE <type>)
    (<memoryEntity> ^COLOR <color>) 
    (<memory> ^COUNT <quantity> -)
-   (<memory> ^COUNT (+ 1 <quantity>))
-   (write (crlf) | APPLYING store entity | <name> | | <color> |. Counter: | (+ 1 <quantity>))
-}  
-
+   (<memory> ^COUNT (+ 1 <quantity>))}
+   
 ################  SEE ENTITY WITHOUT MEMORY COUNT #################
 # This operator will make the agent hold some entities in memory if the agent has not some entities in memory
 
@@ -125,10 +122,8 @@ sp {propose*see*entity*without*memory*count
    (<newEntity> ^Type <type>)
    (<newEntity> ^X <x>)
    (<newEntity> ^Y <y>)
-   (<newEntity> ^Color <color>)
-   (write (crlf) | Proposing to store entity | <name> | | <color> |. No counter.|)
-}
-
+   (<newEntity> ^Color <color>)}
+   
 # Apply*see*entity*without*memory*count:
 # If the see operator is selected, then generate an output command to it 
 sp {apply*see*entity*without*memory*count
@@ -152,78 +147,8 @@ sp {apply*see*entity*without*memory*count
    (<memoryEntity> ^NAME <name>)
    (<memoryEntity> ^TYPE <type>)
    (<memoryEntity> ^COLOR <color>)
-   (<memory> ^COUNT 1)
-   (write (crlf) | APPLYING store entity | <name> | | <color> |. Counter: 1|)
-}
-
-#
-# Jewel colors counters
-#
-
-sp {apply*see*entity*with-without*memory*count*update-jewel-counters*new-1
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link <il>)
-   (<io> ^output-link <ol>)
-   (<il> ^CREATURE <creature>)
-   (<creature> ^MEMORY <memory>)  
-   (<o> ^name << seeEntityWithMemoryCount seeEntityWithoutMemoryCount >>)
-   (<o> ^parameterEntity <newEntity>)
-   (<newEntity> ^X <x>)
-   (<newEntity> ^Y <y>)
-   (<newEntity> ^Name <name>)
-   (<newEntity> ^Type JEWEL)
-   (<newEntity> ^Color <color>)
-  -(<memory> ^jewels-counters)
--->
-   (<memory> ^jewels-counters.<color> 1)
-   (write (crlf) | Creating | <color> | jewels counter. First counter.|)
-}
-
-
-sp {apply*see*entity*with-without*memory*count*update-jewel-counters*new-2
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link <il>)
-   (<io> ^output-link <ol>)
-   (<il> ^CREATURE <creature>)
-   (<creature> ^MEMORY <memory>)  
-   (<o> ^name << seeEntityWithMemoryCount seeEntityWithoutMemoryCount >>)
-   (<o> ^parameterEntity <newEntity>)
-   (<newEntity> ^X <x>)
-   (<newEntity> ^Y <y>)
-   (<newEntity> ^Name <name>)
-   (<newEntity> ^Type JEWEL)
-   (<newEntity> ^Color <color>)
-   (<memory> ^jewels-counters <jc>)
-  -(<jc> ^<color>)
--->
-   (<jc> ^<color> 1)
-   (write (crlf) | Creating | <color> | jewels counter. |)
-}
-
-
-sp {apply*see*entity*with-without*memory*count*update-jewel-counters*add
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link <il>)
-   (<io> ^output-link <ol>)
-   (<il> ^CREATURE <creature>)
-   (<creature> ^MEMORY <memory>)  
-   (<o> ^name << seeEntityWithMemoryCount seeEntityWithoutMemoryCount >>)
-   (<o> ^parameterEntity <newEntity>)
-   (<newEntity> ^X <x>)
-   (<newEntity> ^Y <y>)
-   (<newEntity> ^Name <name>)
-   (<newEntity> ^Type JEWEL)
-   (<newEntity> ^Color <color>)
-   (<memory> ^jewels-counters <jc>)
-   (<jc> ^<color> <old-value>)
--->
-   (<jc> ^<color> <old-value> -
-                  (+ <old-value> 1))
-   (write (crlf) | Increasing | <color> | jewels counter. Value: | (+ <old-value> 1))
-}
+   (<memory> ^COUNT 1)}
+ 
 
 ##############################  MOVE FOOD  #####################################
 # This operator will make the agent go straight to the food
@@ -274,7 +199,9 @@ sp {apply*move*food
    (<command> ^VelR 1)
    (<command> ^VelL 1)
    (<command> ^X <x>)
-   (<command> ^Y <y>)}
+   (<command> ^Y <y>)
+   #(halt)
+}
   
 # Apply*moveFood*remove-move:
 # If the moveFood operator is selected,
@@ -283,10 +210,10 @@ sp {apply*move*food
 sp {apply*moveFood*remove-move
 (state <s> ^operator.name moveFood
            ^io.output-link <out>)
-(<out> ^{<cmd> << EAT GET MOVE DELIVER >>} <move>)
+(<out> ^MOVE <move>)
 (<move> ^status complete)
 -->
-(<out> ^<cmd> <move> -)}   
+(<out> ^MOVE <move> -)}   
 
 #Remove the food from memory because it is not there anymore 
 sp {apply*moveFood*remove*food
@@ -342,12 +269,15 @@ sp {apply*eat*food
    (<memory> ^COUNT <quantity>)  
    (<memory> ^ENTITY <memoryEntity>)
    (<memoryEntity> ^NAME <memoryEntityName> <foodName>)
+   - (<ol> ^EAT <something>)
 -->
    (<ol> ^EAT <command>)
    (<command> ^Name <foodName>)
    (<memory> ^COUNT <quantity> -
              ^COUNT (- <quantity> 1))
-   (<memory> ^ENTITY <memoryEntity> -)}
+   (<memory> ^ENTITY <memoryEntity> -)
+   #(halt)
+}
   
 # Apply*eat*remove-move:
 # If the eatFood operator is selected,
@@ -358,10 +288,10 @@ sp {apply*eatFood*remove-eat
            ^io.output-link <out>)
 (<o> ^name eatFood)
 (<o> ^parameter.name <foodName>)
-(<out> ^{<cmd> << EAT GET MOVE DELIVER >>} <eat>)
+(<out> ^EAT <eat>)
 (<eat> ^status complete)
 -->
-(<out> ^<cmd> <eat> -)}
+(<out> ^EAT <eat> -)}
 
 #############################  MOVE JEWEL  #####################################
 # This operator will make the agent go straight to the jewel
@@ -412,7 +342,10 @@ sp {apply*move*jewel
    (<command> ^VelR 1)
    (<command> ^VelL 1)
    (<command> ^X <x>)
-   (<command> ^Y <y>)}
+   (<command> ^Y <y>)
+   #(halt)
+}
+
   
 # Apply*moveJewel*remove-move:
 # If the moveJewel operator is selected,
@@ -427,25 +360,25 @@ sp {apply*moveJewel*remove-move
 (<out> ^MOVE <move> -)}   
 
 #Remove the jewel From memory because de jewel is not there 
-#sp {apply*moveJewel*remove*jewel
-#(state <s> ^operator <o>
-#           ^io.input-link <il>)
-#(<o> ^name moveJewel)
-#(<o> ^parameter <jewel>)
-#(<jewel> ^X <x>)
-#(<jewel> ^Y <y>)
-#(<il> ^CREATURE <creature>)
-#(<creature> ^MEMORY <memory>)
-#(<memory> ^ENTITY <entityInMemory>) 
-#(<memory> ^COUNT <quantity>)
-#(<entityInMemory> ^X <x>)
-#(<entityInMemory> ^Y <y>)      
-#-(<creature> ^SENSOR.VISUAL.ENTITY.X <entityX> <x>)
-#-(<creature> ^SENSOR.VISUAL.ENTITY.Y <entityY> <y>)
-#-->
-#(<memory> ^ENTITY <entityInMemory> -)
-#(<memory> ^COUNT <quantity> -
-#          ^COUNT (- <quantity> 1))}   
+sp {apply*moveJewel*remove*jewel
+(state <s> ^operator <o>
+           ^io.input-link <il>)
+(<o> ^name moveJewel)
+(<o> ^parameter <jewel>)
+(<jewel> ^X <x>)
+(<jewel> ^Y <y>)
+(<il> ^CREATURE <creature>)
+(<creature> ^MEMORY <memory>)
+(<memory> ^ENTITY <entityInMemory>) 
+(<memory> ^COUNT <quantity>)
+(<entityInMemory> ^X <x>)
+(<entityInMemory> ^Y <y>)      
+-(<creature> ^SENSOR.VISUAL.ENTITY.X <entityX> <x>)
+-(<creature> ^SENSOR.VISUAL.ENTITY.Y <entityY> <y>)
+-->
+(<memory> ^ENTITY <entityInMemory> -)
+(<memory> ^COUNT <quantity> -
+          ^COUNT (- <quantity> 1))}   
 
 ##############################  GET JEWEL  #####################################
 # This operator will make the agent get the jewel
@@ -480,12 +413,15 @@ sp {apply*get*jewel
    (<memory> ^COUNT <quantity>)  
    (<memory> ^ENTITY <memoryEntity>)
    (<memoryEntity> ^NAME <memoryEntityName> <jewelName>)
+   - (<ol> ^GET <anything>)   # Colocado por Ricardo
 -->
    (<ol> ^GET <command>)
    (<command> ^Name <jewelName>)
    (<memory> ^COUNT <quantity> -
              ^COUNT (- <quantity> 1))
-   (<memory> ^ENTITY <memoryEntity> -)}
+   (<memory> ^ENTITY <memoryEntity> -)
+   #(halt)
+}
   
 # Apply*get*remove-move:
 # If the getJewel operator is selected,
@@ -496,336 +432,10 @@ sp {apply*getJewel*remove-get
            ^io.output-link <out>)
 (<o> ^name getJewel)
 (<o> ^parameter.name <jewelName>)
-(<out> ^{<cmd> << GET MOVE DELIVER >>} <move>)
+(<out> ^GET <move>)
 (<move> ^status complete)
 -->
-(<out> ^<cmd> <move> -)}   
-
-
-#
-# Decrease the environment counter of total jewels of a given color
-#
-
-sp {apply*get*jewel*decrease-jewel-counter
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link <il>)      
-   (<o> ^name getJewel)
-   (<o> ^parameter.NAME <jewelName>)
-   (<il> ^CREATURE <creature>) 
-   (<creature> ^MEMORY <memory>)
-   (<memory> ^jewels-counters <jc>)
-   (<jc> ^<jewelColor> <jewel-color-quantity>)
-   (<memory> ^ENTITY <memoryEntity>)
-   (<memoryEntity> ^NAME <jewelName>
-                   ^COLOR <jewelColor>)
--->
-   (<jc> ^<jewelColor> <jewel-color-quantity> -
-                       (- <jewel-color-quantity> 1))
-   (write (crlf) | Decreasing | <jewelColor> | jewels counter. Value: | (- <jewel-color-quantity> 1))
-}            
-
-
-#
-# Increment the jewels-sack counter for the given color 
-#
-
-sp {apply*get*jewel*increase-jewels-sack-new-1
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link <il>)      
-   (<o> ^name getJewel)
-   (<o> ^parameter.NAME <jewelName>)
-   (<il> ^CREATURE <creature>) 
-   (<creature> ^MEMORY <memory>)
-  -(<memory> ^jewels-sack)
-   (<memory> ^ENTITY <memoryEntity>)
-   (<memoryEntity> ^NAME <jewelName>
-                   ^COLOR <jewelColor>)
--->
-   (<memory> ^jewels-sack.<jewelColor> 1)
-   (write (crlf) | Put the first | <jewelColor> | jewel in the sack. First of all.|)
-}
-
-
-sp {apply*get*jewel*increase-jewels-sack-new-2
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link <il>)      
-   (<o> ^name getJewel)
-   (<o> ^parameter.NAME <jewelName>)
-   (<il> ^CREATURE <creature>) 
-   (<creature> ^MEMORY <memory>)
-   (<memory> ^jewels-sack <js>)
-  -(<js> ^<jewelColor>)
-   (<memory> ^ENTITY <memoryEntity>)
-   (<memoryEntity> ^NAME <jewelName>
-                   ^COLOR <jewelColor>)
--->
-   (<js> ^<jewelColor> 1)
-   (write (crlf) | Put the first | <jewelColor> | jewel in the sack.|)
-}
-
-
-sp {apply*get*jewel*increase-jewels-sack-new-add
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link <il>)      
-   (<o> ^name getJewel)
-   (<o> ^parameter.NAME <jewelName>)
-   (<il> ^CREATURE <creature>) 
-   (<creature> ^MEMORY <memory>)
-   (<memory> ^jewels-sack <js>)
-   (<js> ^<jewelColor> <quantity>)
-   (<memory> ^ENTITY <memoryEntity>)
-   (<memoryEntity> ^NAME <jewelName>
-                   ^COLOR <jewelColor>)
--->
-   (<js> ^<jewelColor> <quantity> -
-                       (+ <quantity> 1))
-   (write (crlf) | Put another | <jewelColor> | jewel in the sack. Color total: | (+ <quantity> 1))
-}
-
-
-
-#####################################################################################
-#
-# Deliver completed leaflet
-#
-#####################################################################################
-
-#
-# Elaborate the current leaflets with the counter of already get jewels
-#
-
-sp {propose*update-leaflets-with-jewels-in-sack
-   (state <s> ^io.input-link.CREATURE.LEAFLETS <lls>)
-  -(<lls> ^leaflets-done *yes*)
--->
-   (<s> ^operator <o> +, >)
-   (<o> ^name updateLeaflets)
-   (write (crlf) | Proposing to update the leaflets list |)
-}
-
-
-#sp {apply*update-leaflets-enough-jewels-in-sack
-#   (state <s> ^operator.name updateLeaflets
-#              ^io.input-link.CREATURE <creature>)
-#   (<creature> ^MEMORY.jewels-sack <js>
-#               ^LEAFLETS <lls>)
-#   (<lls> ^LEAFLET <ll>)
-#   (<ll> ^<color> <ll-color>)
-#   (<js> ^<color> <color-count-sack> > 0)
-#-->
-#   (<ll-color> ^in-sack <color-count-sack>)
-#   (<lls> ^leaflets-done *yes*)
-#}
-
-
-sp {apply*update-leaflets-enough-jewels-in-sack
-   (state <s> ^operator.name updateLeaflets
-              ^io.input-link.CREATURE <creature>)
-   (<creature> ^MEMORY.jewels-sack <js>
-               ^LEAFLETS <lls>)
-   (<lls> ^LEAFLET <ll>)
-   (<ll> ^{<color> << Blue Green Magenta Yellow Red White >>} <ll-color>)
-   (<ll-color> ^TARGET <color-target-num>)
-   (<js> ^<color> <color-count-sack> >= <color-target-num>)
--->
-   (<ll-color> ^in-sack <color-count-sack>)
-   (<lls> ^leaflets-done *yes*)
-}
-
-
-sp {apply*update-leaflets-less-jewels-in-sack
-   (state <s> ^operator.name updateLeaflets
-              ^io.input-link.CREATURE <creature>)
-   (<creature> ^MEMORY.jewels-sack <js>
-               ^LEAFLETS <lls>)
-   (<lls> ^LEAFLET <ll>)
-   (<ll> ^{<color> << Blue Green Magenta Yellow Red White >>} <ll-color>)
-   (<ll-color> ^TARGET <color-target-num>)
-   (<js> ^<color> <color-count-sack> < <color-target-num>)
--->
-   (<ll> ^incomplete *yes*)
-   (<ll-color> ^in-sack <color-count-sack>)
-   (<lls> ^leaflets-done *yes*)
-}
-
-
-
-
-sp {apply*update-leaflets-no-jewels-in-sack
-   (state <s> ^operator.name updateLeaflets
-              ^io.input-link.CREATURE <creature>)
-   (<creature> ^LEAFLETS <lls>)
-   (<lls> ^LEAFLET <ll>)
-   (<ll> ^{<color> << Blue Green Magenta Yellow Red White >>} <ll-color>)
- -{(<creature> ^MEMORY.jewels-sack <js>)
-   (<js> ^<color> <color-count-sack> > 0)}
--->
-   (<ll> ^incomplete *yes*)
-   (<ll-color> ^in-sack 0)
-   (<lls> ^leaflets-done *yes*)
-}
-
-
-
-
-sp {elaborate*deliverySpot*distance
-   (state <s> ^io.input-link.CREATURE <creature>)
-   (<creature> ^DELIVERY-SPOT <ds>
-               ^LEAFLETS <lls>
-               ^POSITION <creaturePosition>)
-   (<creaturePosition> ^X <c-x>
-                       ^Y <c-y>)
-   (<ds> ^X <ds-x>
-         ^Y <ds-y>)
--->
-  (<ds> ^distance (sqrt (+ (* (- <c-x> <ds-x>) (- <c-x> <ds-x>)) (* (- <c-y> <ds-y>) (- <c-y> <ds-y>)))))
-}
-
-
-
-sp {monitor*deliverySpot*distance
-   (state <s> ^io.input-link.CREATURE <creature>)
-   (<creature> ^DELIVERY-SPOT.distance <ds-distance>)
--->
-   (write (crlf) | Current distance to delivery spot | <ds-distance>)
-}   
-
-
-
-
-sp {propose*moveDeliverySpot*complete-leaflet
-   (state <s> ^io.input-link.CREATURE <creature>)
-   (<creature> ^DELIVERY-SPOT <ds>
-               ^LEAFLETS <lls>
-               ^POSITION <creaturePosition>)
-   (<creaturePosition> ^X <c-x>
-                       ^Y <c-y>)
-   (<ds> ^X <ds-x>
-         ^Y <ds-y>
-         ^distance <ds-distance> > 30)
-   (<lls> ^LEAFLET <ll>
-          ^leaflets-done *yes*)
-   (<ll> ^PAYMENT <ll-payment>
-         ^ID <ll-id>
-        -^incomplete *yes*)
--->
-   (<s> ^operator <o> +)
-   (<o> ^name moveDeliverySpot
-        ^distance <ds-distance>
-        ^id <ll-id>
-        ^payment <ll-payment>)
-   (write (crlf) | Proposing go to delivery spot for leaflet | <ll-id> | of payment | <ll-payment> | and distance | <ds-distance>)
-}
-
-
-
-
-sp {apply*moveDeliverySpot*complete-leaflet
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link.CREATURE <creature>)           
-   (<io> ^output-link <ol>)
-   (<o> ^name moveDeliverySpot
-        ^id <ll-id>
-        ^payment <ll-payment>)
-   (<creature> ^DELIVERY-SPOT <ds>)
-   (<ds> ^X <ds-x>
-         ^Y <ds-y>)
--->
-   (<ol> ^MOVE <command>)
-   (<command> ^Vel 1)
-   (<command> ^VelR 1)
-   (<command> ^VelL 1)
-   (<command> ^X <ds-x>)
-   (<command> ^Y <ds-y>)
-   (write (crlf) | Going to delivery spot to deliver leaflet | <ll-id> | of payment | <ll-payment>)
-}
-
-
-
-
-sp {propose*deliverLeaflet
-   (state <s> ^io.input-link.CREATURE <creature>)
-   (<creature> ^DELIVERY-SPOT <ds>
-               ^LEAFLETS <lls>
-               ^POSITION <creaturePosition>)
-   (<creaturePosition> ^X <c-x>
-                       ^Y <c-y>)
-   (<ds> ^X <ds-x>
-         ^Y <ds-y>
-         ^distance <ds-distance> <= 30)
-   (<lls> ^LEAFLET <ll>
-          ^leaflets-done *yes*)
-   (<ll> ^PAYMENT <ll-payment>
-         ^ID <ll-id>
-        -^incomplete *yes*)
--->
-   (<s> ^operator <o> +, >)
-   (<o> ^name deliverLeaflet
-        ^id <ll-id>
-        ^payment <ll-payment>)
-   (write (crlf) | Proposing to deliver leaflet | <ll-id> | of payment | <ll-payment>)
-}
-
-
-
-sp {apply*deliverLeaflet
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^output-link <ol>)
-   (<o> ^name deliverLeaflet
-        ^id <ll-id>
-        ^payment <ll-payment>)
--->
-   (<ol> ^DELIVER <command>)
-   (<command> ^id <ll-id>)
-   (write (crlf) | Deliver leaflet | <ll-id> | of payment | <ll-payment>)
-}
-
-
-
-
-sp {apply*deliverLeaflet*decrease-jewels-sack
-   (state <s> ^operator <o>
-              ^io <io>)
-   (<io> ^input-link.CREATURE <creature>)           
-   (<io> ^output-link <ol>)
-   (<o> ^name deliverLeaflet
-        ^id <ll-id>)
-   (<creature> ^LEAFLETS <lls>)
-   (<lls> ^LEAFLET <ll>)
-   (<ll> ^ID <ll-id>
-         ^{<color> << Blue Green Magenta Yellow Red White >>} <ll-color>)
-   (<ll-color> ^TARGET <ll-color-count>
-              -^already-decreased-from-sack *yes*)
-   (<creature> ^MEMORY.jewels-sack <js>)
-   (<js> ^<color> <js-color-count>)
--->
-   (<js> ^<color> <js-color-count> -
-                  (- <js-color-count> <ll-color-count>))
-   (<ll-color> ^already-decreased-from-sack *yes*)
-   (write (crlf) | Leaflet | <ll-id> | delivered. Now has  | (- <js-color-count> <ll-color-count>) | | <color> | jewels in sack.|)
-}
-
-
-
-sp {apply*deliverLeaflet*remove-move
-    (state <s> ^operator.name deliverLeaflet
-           ^io.output-link <ol>)
-    (<ol> ^{<cmd> << EAT GET MOVE DELIVER >>} <command>)
-    (<command> ^status complete)
--->
-    (<ol> ^<cmd> <command> -)
-}   
-
-
-
-
-
+(<out> ^GET <move> -)}   
 
 #############################  AVOID BRICK  ####################################
 # This operator will make the agent avoid the brick
@@ -879,88 +489,12 @@ sp {apply*avoidBrick*remove*entity*memory
 sp {apply*avoidBrick*remove-move
 (state <s> ^operator.name avoidBrick
            ^io.output-link <out>)
-(<out> ^{<cmd> << EAT GET MOVE DELIVER >>} <move>)
+(<out> ^MOVE <move>)
 (<move> ^status complete)
 -->
-(<out> ^<cmd> <move> -)}  
+(<out> ^MOVE <move> -)}  
             
 ##################  OPERATORS PREFERENCES AND IMPASSE SOLVE  ###################
-
-#
-# moveDeliverySpot preference rules
-#
-
-sp {deliver-higher-payment-leaflet*moveDeliverySpot*preferences
-   (state <s> ^operator <o1> +
-                        <o2> +)
-   (<o1> ^name moveDeliverySpot
-         ^id <ll-id-1>
-         ^payment <ll-payment-1>)
-   (<o2> ^name moveDeliverySpot
-         ^id <ll-id-2> <> <ll-id-1>
-         ^payment <ll-payment-2> <= <ll-payment-1>)
--->
-   (<s> ^operator <o1> > <o2>)
-   (write (crlf) | Selecting to go deliver leaflet | <ll-id-1> | (| <ll-payment-1> |) instead of | <ll-id-2> | (| <ll-payment-2> |)|)
-}
-
-
-
-sp {moveDeliverySpot*moveJewel*preference-1
-   (state <s> ^operator <o1> +
-                        <o2> +
-              ^io.input-link.CREATURE.DELIVERY-SPOT <ds>)
-   (<ds> ^distance <distance-ds>)
-   (<o1> ^name moveDeliverySpot
-         ^id <ll-id-1>
-         ^payment <ll-payment-1>)
-   (<o2> ^name moveJewel)
-   (<o2> ^parameter.distance <distance-jewel> >= <distance-ds>)
--->
-   (<s> ^operator <o1> > <o2>)
-   (write (crlf) | Selecting to go deliver leaflet | <ll-id-1> | (| <ll-payment-1> |, distance | 
-                   <distance-ds> |) instead of moveJewel (distance | <distance-jewel> |)|)
-}
-
-
-sp {moveDeliverySpot*moveJewel*preference-2
-   (state <s> ^operator <o1> +
-                        <o2> +
-              ^io.input-link.CREATURE.DELIVERY-SPOT <ds>)
-   (<ds> ^distance <distance-ds>)
-   (<o1> ^name moveDeliverySpot
-         ^id <ll-id-1>
-         ^payment <ll-payment-1>)
-   (<o2> ^name moveJewel)
-   (<o2> ^parameter.distance <distance-jewel> < <distance-ds>)
--->
-   (<s> ^operator <o1> < <o2>)
-   (write (crlf) | Selecting to moveJewel (distance | <distance-jewel> |) instead of go deliver leaflet | <ll-id-1> | (| 
-                 <ll-payment-1> |, distance | <distance-ds> |) |)
-}
-
-
-
-
-#
-# deliverLeaflet preference rules.
-#
-
-sp {deliverLeaflet-higher-payment*preferences
-   (state <s> ^operator <o1> +
-                        <o2> +)
-   (<o1> ^name deliverLeaflet
-         ^id <ll-id-1>
-         ^payment <ll-payment-1>)
-   (<o2> ^name deliverLeaflet
-         ^id <ll-id-2> <> <ll-id-1>
-         ^payment <ll-payment-2> <= <ll-payment-1>)
--->
-   (<s> ^operator <o1> > <o2>)
-   (write (crlf) | Selecting to deliver leaflet | <ll-id-1> | (| <ll-payment-1> |) instead of | <ll-id-2> | (| <ll-payment-2> |)|)
-}
-
-
 
 #SEE AND PROCESS ENTITY
 
@@ -969,7 +503,7 @@ sp {moveJewel*seeEntity*preferences
 (state <s> ^operator <o> + 
                      <o2> +)
 (<o> ^name << seeEntityWithMemoryCount seeEntityWithoutMemoryCount >>)
-(<o2> ^name << moveJewel moveFood moveDeliverySpot >>)
+(<o2> ^name << moveJewel moveFood eatFood >>)
 -->
 (<s> ^operator <o> > <o2>)} 
 
@@ -997,7 +531,16 @@ sp {moveJewel*getJewel*preferences
 (state <s> ^operator <o> + 
                      <o2> +)
 (<o> ^name getJewel)
-(<o2> ^name << moveJewel moveFood moveDeliverySpot >>)
+(<o2> ^name << moveJewel moveFood >>)
+-->
+(<s> ^operator <o> > <o2>)} 
+
+# Get Jewel vs SeeEntity
+sp {getJewel*seeEntity*preferences
+(state <s> ^operator <o> + 
+                     <o2> +)
+(<o> ^name getJewel)
+(<o2> ^name << seeEntityWithMemoryCount seeEntityWithoutMemoryCount >>)
 -->
 (<s> ^operator <o> > <o2>)} 
 
@@ -1045,7 +588,7 @@ sp {moveFood*eatFood*preferences
 (state <s> ^operator <o> + 
                      <o2> +)
 (<o> ^name eatFood)
-(<o2> ^name << moveFood moveJewel moveDeliverySpot >>)
+(<o2> ^name << moveFood moveJewel >>)
 -->
 (<s> ^operator <o> > <o2>)} 
 
@@ -1095,13 +638,11 @@ sp {moveFood*moveJewel*preferences*moveFoodWins
 (<ss> ^io.input-link <il>)
 (<o> ^name moveFood)
 (<o> ^parameterFuel <threshold>)
-(<o2> ^name << moveJewel moveDeliverySpot >>)
+(<o2> ^name moveJewel)
 (<il> ^CREATURE.SENSOR.FUEL <fuel>)
 (<fuel> ^VALUE <value> <= <threshold>)        
 -->
 (<ss> ^operator <o> > <o2>)} 
-
-
 
 # Move Food vs Move Jewel Preferences - Move Jewel Wins
 sp {moveFood*moveJewel*preferences*moveJewelWins
@@ -1112,7 +653,7 @@ sp {moveFood*moveJewel*preferences*moveJewelWins
 (<ss> ^io.input-link <il>)
 (<o> ^name moveFood)
 (<o> ^parameterFuel <threshold>)
-(<o2> ^name << moveJewel moveDeliverySpot >>)
+(<o2> ^name moveJewel)
 (<il> ^CREATURE.SENSOR.FUEL <fuel>)
 (<fuel> ^VALUE <value> > <threshold>)        
 -->
@@ -1164,13 +705,12 @@ sp {wander*preferences
 -->
 (<s> ^operator <o> <)}
 
+# HALT
 
-
-sp {eatFood*getJewel*preferences*over*seeEntity
-(state <s> ^operator <o1> + 
-                     <o2> +)
-(<o1> ^name << getJewel eatFood >>)
-(<o2> ^name << seeEntityWithMemoryCount seeEntityWithoutMemoryCount >>)
+sp {halt*condition
+  (state <s> ^impasse no-change ^type state -^operator ^attribute operator)
 -->
-(<s> ^operator <o1> > <o2>)
-}        
+  #(write I2)
+  #(halt)
+  (interrupt)
+}       
